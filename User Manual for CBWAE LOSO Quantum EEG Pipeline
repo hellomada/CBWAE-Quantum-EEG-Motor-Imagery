@@ -1,0 +1,131 @@
+#User Manual for CBWAE LOSO Quantum EEG Pipeline
+1. Overview
+
+This project implements a LOSO (Leave-One-Subject-Out) EEG classification pipeline with:
+
+Classical machine learning: Logistic Regression, Random Forest, kNN, SVM, XGBoost
+
+Meta-learning: A neural network stacking ensemble using predictions and entropy measures
+
+Quantum-inspired feature augmentation: Adds complex-valued features inspired by quantum mechanics
+
+Advanced evaluation metrics: F1, Accuracy, Balanced Accuracy, MCC, Kappa, LogLoss, Brier score, ECE, confidence gap, uncertainty correlation
+
+The main goal is to classify EEG signals (e.g., motor imagery) with high accuracy across subjects.
+
+2. Scripts
+A. EDF Presence Checker Script
+
+Purpose:
+
+Quickly checks if all your expected EDF files are present in a folder.
+
+Supports file naming convention S###R04.edf and S###R06.edf (e.g., S001R04.edf).
+
+Usage:
+
+data_path = "/content"  # Change to your EDF folder
+
+
+Runs through subjects S001 to S100 and prints missing files.
+
+Recommendation:
+
+Always run this first to ensure you have all necessary data before executing the main pipeline.
+
+Useful if you have many subjects or suspect missing/corrupted files.
+
+B. CBWAE LOSO Quantum Script (cbwae_novel_loso_quantum.py)
+
+Purpose:
+
+Performs full EEG classification using a multi-stage ensemble.
+
+Supports feature extraction (time-domain, bandpower, wavelets).
+
+Adds quantum-inspired feature augmentation.
+
+Trains multiple base models, combines predictions with meta-learning DNN.
+
+Provides per-subject results CSV and a summary report.
+
+Key Features & Parameters:
+
+Component	Description	User Options
+DATA_ROOT	Root folder to search for EDF files	Change to your data path
+WINDOW_SECONDS	Length of EEG segments (default 2s)	Adjust if different windowing needed
+INCLUDE_WAVELET	Include wavelet features	True/False
+N_SPLITS_OOF	Out-of-fold splits for base models	3–5 recommended
+META_EPOCHS, META_BATCH	Meta-learning DNN training	Adjust for speed/accuracy tradeoff
+QF_DIM	Dimension of quantum-inspired features	Default 32
+CONFIDENCE_THRESHOLD	For pseudo-labeling / novelty detection	Default 0.75
+
+Outputs:
+
+cbwae_loso_results.csv → metrics per subject
+
+cbwae_loso_summary.txt → mean ± std summary across all subjects
+
+3. Workflow / How to Use
+Step 1: Verify EDF files
+
+Run the EDF checker script to identify missing files.
+
+Ensure all S###R04 and S###R06 pairs exist.
+
+Step 2: Run main LOSO pipeline
+
+Ensure all dependencies are installed (mne, scikit-learn, tensorflow, xgboost, pywt).
+
+Run:
+
+python cbwae_novel_loso_quantum.py
+
+
+Monitor output per subject.
+
+Step 3: Review results
+
+Check CSV for per-subject accuracy and metrics.
+
+Check summary file for mean ± std across all subjects.
+
+4. Which Components to Use / Recommendations
+
+Always:
+
+EDF presence checker → ensures you won’t waste time.
+
+Main LOSO pipeline → full evaluation.
+
+Selective / Optional:
+
+Quantum-inspired features (QF_DIM) → can be turned off by not stacking them if you want simpler classical ML evaluation.
+
+Wavelet features → optional if computational resources are limited.
+
+Meta-learning DNN → can skip and rely on weighted or best single model if you just need baseline performance.
+
+Recommended Approach for New Users:
+
+Step 1: EDF checker → ensure complete dataset
+
+Step 2: Run full LOSO with quantum + meta-learning for best performance
+
+Step 3: Optionally, turn off wavelet or quantum features to compare effect on accuracy
+
+5. Notes / Tips
+
+Computation: LOSO with meta-DNN can be slow if many subjects or windows. Use smaller META_EPOCHS for testing.
+
+Randomness: Seed is fixed for reproducibility (RNG=42).
+
+Missing Channels: The script expects EEG channels. If missing, it will raise an error.
+
+File naming: Must match S###R04.edf / S###R06.edf convention.
+
+6. Summary Table: Script Purpose
+Script	Purpose	When to Use	Mandatory?
+EDF Checker	Detect missing EEG files	Before running pipeline	✅ Yes
+cbwae_novel_loso_quantum.py	Full LOSO EEG classification with base + meta models + quantum features	Always for full evaluation	✅ Yes (for performance)
+Base model only (optional)	Evaluate only classical ML models	Quick baseline without meta DNN	⚪ Optional
