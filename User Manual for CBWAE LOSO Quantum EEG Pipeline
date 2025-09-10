@@ -1,4 +1,99 @@
 #User Manual for CBWAE LOSO Quantum EEG Pipeline
+
+Overview
+
+This script implements a Leave-One-Subject-Out (LOSO) EEG classification pipeline with:
+
+Classical and ensemble base models: XGBoost, Logistic Regression, Random Forest, kNN, SVM.
+
+Meta-modeling with a small neural network using:
+
+Raw base probabilities
+
+Weighted base probabilities
+
+Entropy and agreement features
+
+Quantum-inspired feature augmentation that transforms EEG features into a complex-valued embedding and extracts statistics.
+
+Calibration and uncertainty mechanisms for novelty detection.
+
+Full evaluation metrics including accuracy, F1, balanced accuracy, MCC, Kappa, log loss, Brier score, expected calibration error, and confidence/uncertainty correlations.
+
+Key Features
+
+EDF Handling: Recursive search for S###R04.edf and S###R06.edf pairs.
+
+Feature Extraction:
+
+Basic statistics: mean, std, skew, kurtosis.
+
+Bandpower in the alpha band (8–12 Hz).
+
+Wavelet features (optional).
+
+Quantum-inspired features:
+
+Complex exponential mapping.
+
+QR decomposition to mix features.
+
+Prototype fidelities + magnitude/phase stats.
+
+Meta-learning:
+
+OOF probabilities from base models.
+
+Entropy-based confidence weighting.
+
+Neural network meta-model.
+
+Evaluation: LOSO per-subject and summary statistics.
+
+Strengths
+
+Very comprehensive evaluation metrics.
+
+Integration of quantum-inspired features is innovative.
+
+LOSO strategy ensures subject-independent evaluation.
+
+Flexible feature extraction (wavelet, bandpower, stats).
+
+Supports multi-model ensemble weighting.
+
+Potential Improvements / Considerations
+
+Performance / Memory:
+
+Quantum mapping and meta-DNN on large EEG datasets may be slow.
+
+Using np.vstack repeatedly can increase memory usage.
+
+You could process subjects sequentially and save features to disk before LOSO.
+
+Meta-model scaling:
+
+Currently uses StandardScaler on concatenated features — works well, but consider RobustScaler for outliers in EEG.
+
+Calibration/novelty:
+
+The CalibrationBuffer is defined but not actively used in LOSO — could be integrated for pseudo-labeling / uncertainty loops.
+
+Quantum features reproducibility:
+
+Random initialization (QF_RANDOM_SEED) is fixed — fine for reproducibility, but you might want multiple runs for stability.
+
+Error correlation weighting:
+
+The weight formula f1_score * (1 - avg_corr) is reasonable, but check edge cases where all correlations are high or identical.
+
+Output:
+
+Saves per-subject CSV and summary text — consider saving meta-model weights, feature importance, or OOF predictions for reproducibility.
+
+
+# Detailed Information
 1. Overview
 
 This project implements a LOSO (Leave-One-Subject-Out) EEG classification pipeline with:
