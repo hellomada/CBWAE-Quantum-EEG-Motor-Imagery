@@ -1,0 +1,90 @@
+Data Availability and Usage for CBWAE EEG Pipeline
+1. Dataset Overview
+
+This study utilizes EEG recordings from 100 subjects performing motor imagery tasks. Each subject has multiple recording sessions (runs) in EDF format, named according to the convention:
+
+S###R##.edf
+
+
+S### → Subject ID (e.g., S001 for Subject 1).
+
+R## → Run number (e.g., R04 or R06).
+
+For consistency and reproducibility, only R04 and R06 runs were selected for analysis. These runs were chosen because they were complete for all subjects and provide sufficient data for Leave-One-Subject-Out (LOSO) evaluation.
+
+Note: Other runs exist for some subjects, but were excluded to maintain uniformity across all participants.
+
+2. Preprocessing and Features
+
+The main processing pipeline, implemented in cbwae_novel_loso_quantum.py, performs the following steps:
+
+Load EEG data from EDF files.
+
+Segment the signal into 2-second windows.
+
+Extract classical EEG features (mean, variance, skewness, kurtosis, bandpower) and optional wavelet features.
+
+Compute quantum-inspired features to augment the classical feature set.
+
+Train multiple base classifiers (XGBoost, Logistic Regression, Random Forest, kNN, SVM) and a meta-learner DNN using LOSO cross-validation.
+
+This setup allows other researchers to replicate the results or extend the pipeline to new datasets.
+
+3. Accessing Data for Testing
+
+Due to size constraints, full EDF files are not hosted on GitHub. However, researchers can test the pipeline using:
+
+Public EEG datasets:
+
+BCI Competition IV Dataset 2a: http://www.bbci.de/competition/iv/
+
+Download a subset of subjects and runs.
+
+Rename files to match the format S###R##.edf for compatibility with the scripts.
+
+Sample files:
+
+A small set of EDF files with the proper format can be included in the repository for quick testing.
+
+This ensures full reproducibility without requiring access to the complete raw dataset.
+
+4. GitHub Repository
+
+The complete project code, along with sample data and instructions, is available at:
+GitHub Repository: CBWAE_EEG
+
+Repository contents:
+
+CBWAE_EEG/
+ ├── cbwae_novel_loso_quantum.py    # Main LOSO pipeline
+ ├── check_missing_edf.py            # Utility to verify EDF files
+ ├── sample_DATA/                    # Small EDF subset for testing
+ ├── README.md                       # Detailed instructions
+ └── requirements.txt                # Python dependencies
+
+
+Note: Large EDF files can be hosted via Git LFS or external repositories (e.g., Zenodo or OSF) to bypass GitHub size limits. Links can be provided in the README or paper.
+
+5. Recommended Usage for Researchers
+
+Testing pipeline: Use the included sample EDF files or publicly available datasets.
+
+Full-scale analysis: If raw EDF data is available, place them in the DATA/ folder and set the DATA_ROOT path in cbwae_novel_loso_quantum.py.
+
+Reproducibility: Ensure all dependencies are installed (requirements.txt) and follow the README for running the LOSO pipeline.
+
+Researchers are encouraged to extend the pipeline by including additional runs, adding new feature extraction methods, or testing with alternative classifiers.
+
+6. Citation and Data Sharing
+
+If you use this dataset or pipeline in your research:
+
+Cite this project or associated publication.
+
+Provide proper credit for any publicly sourced EEG datasets.
+
+Recommended external hosting for large datasets:
+
+Zenodo: https://zenodo.org/
+
+Open Science Framework (OSF): https://osf.io/
